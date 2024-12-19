@@ -21,12 +21,13 @@ const NestedListItem = ({ item, setSelected, selected }) => {
     const [open, setOpen] = React.useState(false);
     const [child, setChild] = useState([])
     // const { classSelected, change } = useContext(SelectedContext)
+    const [isLeaf, setIsLeaf] = useState(item.isLeaf)
+
     const handleSelect = () => {
-        if (item.isLeaf) {
+        if (isLeaf) {
             setSelected(item.class_id)
         }
     }
-
     const handleClick = () => {
         axios.get("http://localhost:5050/classes/get", {
             headers: {
@@ -39,22 +40,29 @@ const NestedListItem = ({ item, setSelected, selected }) => {
         }).then((res) => {
             const root = res.data
             let tmp = []
-            root.forEach(element => {
-                tmp.push({ label: element.class_name, class_id: element.class_id, parent_class_id: element.parent_class_id, isLeaf: element.isLeaf })
-            });
-            setChild(tmp)
-            setOpen(!open);
+            if (root){
+                root.forEach(element => {
+                    tmp.push({ label: element.class_name, class_id: element.class_id, parent_class_id: element.parent_class_id, isLeaf: element.isLeaf })
+                });
+                console.log(tmp)
+
+                setChild(tmp)
+                setOpen(!open);
+            } else {
+                console.log('asdasdasdasd')
+setIsLeaf(true)            
+}
 
         })
     };
 
     return (
         <>
-            <ListItemButton onClick={!item.isLeaf ? handleClick : handleSelect} selected={selected === item.class_id} >
+            <ListItemButton onClick={!isLeaf ? handleClick : handleSelect} selected={selected === item.class_id} >
                 <ListItemText primary={item.label} />
-                {!item.isLeaf ? (open ? <ExpandLess /> : <ExpandMore />) : null}
+                {!isLeaf  ? (open ? <ExpandLess /> : <ExpandMore />) : null}
             </ListItemButton>
-            {!item.isLeaf && (
+            {!isLeaf && (
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding sx={{ pl: 4 }}>
                         {child.map((child, index) => (
@@ -97,11 +105,6 @@ export default function IndustryTree({ selected, setSelected }) {
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
         component="nav"
         aria-labelledby="nested-list-subheader"
-        subheader={
-            <ListSubheader component="div" id="nested-list-subheader">
-                Nested List Items
-            </ListSubheader>
-        }
     >
         {treeData.map((item, index) => {
             return (

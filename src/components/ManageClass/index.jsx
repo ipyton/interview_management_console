@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography } from '@mui/material';
+import IndustryTree from '../IndustryTree';
+import axios from 'axios';
 
 export default function ManageClass(props) {
     // 表单的初始状态
     const [formData, setFormData] = useState({
-        class_id: '',
         class_name: '',
         parent_class_id: '',
     });
-
+    const [selected, setSelected] = useState()
     // 处理表单输入变化
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -21,22 +22,73 @@ export default function ManageClass(props) {
         console.log(formData);
         // 在这里可以添加提交数据到服务器的逻辑
     };
+    const handleDelete = () => {
+        if (!selected) return
+        axios.post("http://localhost:5050/classes/delete", {
+            "class_id": selected},
+            {
+                headers: {
+                    'Authorization': 'Bearer czhdawang', // 设置Authorization头部
+                    'Content-Type': 'application/json'         // 指定数据类型
+                },
 
+            }
+        ).then(response=> {
+            console.log(response)
+        })
+    }
+    const handleAdd= () => {
+        if (!selected) return 
+        axios.post("http://localhost:5050/classes/insert", {
+            "class_id": -1,
+            "parent_class_id": selected,
+            "class_name":formData.class_name
+        },
+            {
+                headers: {
+                    'Authorization': 'Bearer czhdawang', // 设置Authorization头部
+                    'Content-Type': 'application/json'         // 指定数据类型
+                },
+
+            }
+        ).then(response => {
+            console.log(response)
+        })
+    } 
+    const handleUpdate = () => {
+        if (!selected) return
+        axios.post("http://localhost:5050/classes/update", {
+            "class_id": selected,
+            "class_name": formData.class_name,
+            "parent_class_id": -1
+        },
+            {
+                headers: {
+                    'Authorization': 'Bearer czhdawang', // 设置Authorization头部
+                    'Content-Type': 'application/json'         // 指定数据类型
+                },
+
+            }
+        ).then(response => {
+            console.log(response)
+        })
+    }
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
-            <Typography variant="h5" component="h2" gutterBottom>
-                Create a Class
-            </Typography>
 
+            <IndustryTree selected={selected} setSelected={setSelected}></IndustryTree>
+            <Typography variant="h5" component="h2" gutterBottom>
+                Change/Add a Class
+            </Typography>
             <TextField
-                label="Class ID"
+                label="Class ID/ ParentClassIdForAdd"
                 name="class_id"
-                value={formData.class_id}
+                value={selected}
                 onChange={handleChange}
                 type="number"
                 fullWidth
                 margin="normal"
-                required
+                
             />
 
             <TextField
@@ -46,22 +98,14 @@ export default function ManageClass(props) {
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
-                required
             />
 
-            <TextField
-                label="Parent Class ID"
-                name="parent_class_id"
-                value={formData.parent_class_id}
-                onChange={handleChange}
-                type="number"
-                fullWidth
-                margin="normal"
-            />
 
-            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                Submit
-            </Button>
+
+            <Button onClick={handleDelete}>Delete</Button>
+            <Button onClick={handleAdd}>Add</Button>
+            <Button onClick={handleUpdate}> Update</Button>
+
         </Box>
     );
 }

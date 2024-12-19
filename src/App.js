@@ -50,7 +50,7 @@ function App() {
           <Toolbar />
           <Divider />
           <List>
-            {[{ name: 'Edit the questions', path: "/edit" }, { name: "Add new Questions", path: "/new" }, { name: "Accounts", path: "/account" }, {name:"Classes", path:"classes"}].map((item, index) => (
+            {[{ name: 'Edit the questions', path: "/edit" }, { name: "Add new Questions", path: "/new" }, { name: "Accounts", path: "/account" }, {name:"Classes", path:"/classes"},{name:"Approve Questions", path:"/approve_questions"},{name:"Get Suggestions And Reply", path:"get_suggestions_and_reply"}].map((item, index) => (
               <ListItem key={item.name} disablePadding>
                 <ListItemButton onClick={()=>{navigate(item.path)}}>
                   <ListItemIcon>

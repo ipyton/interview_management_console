@@ -46,6 +46,7 @@ export default function New() {
         author_id: '',
         author_name: '',
         avatar: '',
+        question_id: -1
     });
 
     const [selected, setSelected] = useState()
@@ -55,24 +56,40 @@ export default function New() {
     // 处理表单输入变化
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        if (name === "author_id") {
+            setFormData({ ...formData, [name]: parseInt(value) });
+        } else {
+            setFormData({ ...formData, [name]: value });
+
+        }
     };
 
     // 表单提交处理
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log(formData);
+    const handleSubmit = async (e) => {
+        console.log(e)
+        formData.class_id = selected
+        await axios.post('http://localhost:5050/questions/upsert', formData, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer czhdawang"
+            },
+        }).then(res => {
+            console.log(res)
+
+        })
+
     };
     const handleUploadFile = async (e) => {
         const formData = new FormData();
         const file = e.target.files[0];
-
+        console.log("uploadi")
         formData.append('file', file); // 这里的 'file' 是字段名
 
         try {
-            const response = await axios.post('http://localhost:8080/upload', formData, {
+            const response = await axios.post('http://localhost:5050/questions/insert_by_file', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': "Bearer czhdawang"
                 },
             });
             console.log('File uploaded successfully:', response.data);
@@ -82,7 +99,7 @@ export default function New() {
     }
 
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
+        <Box component="form" sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
             <Typography variant="h5" component="h2" gutterBottom>
                 Create a Question
             </Typography>
@@ -148,7 +165,7 @@ export default function New() {
                 </Box>
             )}
 
-            <Button type="submit" variant="contained" color="primary" >
+            <Button onClick={handleSubmit} variant="contained" color="primary" >
                 Submit
             </Button>
             <Divider></Divider>
